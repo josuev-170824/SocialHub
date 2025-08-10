@@ -34,8 +34,11 @@ class Google2FAController extends Controller
         // Genera un nuevo secreto de 2FA
         $google2fa = new Google2FA();
         $secret = $google2fa->generateSecretKey();
+
+        // Actualiza el secreto de 2FA en la base de datos
+        $user->update(['google2fa_secret' => $secret]);
         
-        // Genera la URL del QR Code para Google Authenticator
+        // Genera la URL del código QR para Google Authenticator :)
         $qrCodeUrl = $google2fa->getQRCodeUrl(
             'SocialHub Manager',
             $user->email,
