@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
@@ -13,13 +15,6 @@ use BaconQrCode\Writer;
 // Controlador para la gestión de 2FA (Segundo Factor de Autenticación)
 class Google2FAController extends Controller
 {
-    // Constructor para asegurar que el usuario esté autenticado 
-    public function __construct()
-    {
-        // Asegura que el usuario esté autenticado
-        $this->middleware('auth');
-    }
-
     // Método para mostrar la pantalla de configuración de 2FA
     public function showSetup()
     {
@@ -44,9 +39,16 @@ class Google2FAController extends Controller
             $user->email,
             $secret
         );
+        
+        // Generar la imagen QR real
+        $renderer = new \BaconQrCode\Renderer\ImageRenderer(
+            new \BaconQrCode\Renderer\RendererStyle\RendererStyle(350),
+            new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+        );
+        $writer = new \BaconQrCode\Writer($renderer);
+        $qrCodeSvg = $writer->writeString($qrCodeUrl);
 
-        // Muestra la pantalla de configuración de 2FA
-        return view('auth.setup-2fa', compact('secret', 'qrCodeUrl'));
+        return view('auth.setup-2fa', compact('secret', 'qrCodeSvg'));
     }
 
     // Método para activar el 2FA
@@ -65,7 +67,7 @@ class Google2FAController extends Controller
         if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
             $user->update([
                 'google2fa_enabled' => true,
-                'google2fa_enabled_at' => now()
+                'google2fa_enabled_at' => now() -> toDateTimeString()
             ]);
             
             // Si el código es válido, actualiza el estado del 2FA

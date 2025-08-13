@@ -47,6 +47,6 @@ class GoogleAuthController extends Controller
         Auth::login($user, true);
 
         // Se redirige a la página principal
-        return redirect()->intended('/');
+        return redirect()->intended('/dashboard');
     }
 }
