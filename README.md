@@ -20,16 +20,26 @@
 - **Sesiones persistentes** con opción "Recuérdame"
 - **Logout seguro** con invalidación de sesión
 
+#### 🔐 **Segundo Factor de Autenticación (2FA)**
+- **Autenticación de dos factores** con Google Authenticator
+- **Activación opcional** para usuarios
+- **Verificación obligatoria** en rutas protegidas
+- **Códigos QR** para configuración fácil
+- **Middleware de protección** para rutas sensibles
+- **Integración completa** con login tradicional y Google OAuth
+
 #### 🔒 Características de Seguridad
 - **Validación robusta** de formularios
 - **Hash seguro** de contraseñas (bcrypt)
 - **Protección CSRF** en todos los formularios
 - **Middleware de autenticación** para rutas protegidas
+- **Protección de rutas** con verificación 2FA
 
 #### 🎨 Interfaz de Usuario
 - **Componentes reutilizables** (layouts, formularios)
 - **Navegación intuitiva** entre páginas
 - **Feedback visual** para errores y validaciones
+- **Vistas responsivas** para configuración de seguridad
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -38,6 +48,8 @@
 - **PHP 8.2+** - Lenguaje de programación
 - **MariaDB** - Base de datos relacional
 - **Laravel Socialite** - Integración OAuth con redes sociales
+- **Google2FA** - Autenticación de dos factores
+- **Bacon QR Code** - Generación de códigos QR
 
 ### Frontend
 - **Tailwind CSS** - Framework CSS utility-first
@@ -155,11 +167,26 @@ sudo systemctl reload apache2
 ### Autenticación con Google
 1. En cualquier formulario de auth, haz clic en "Continuar con Google"
 2. Autoriza la aplicación en Google
-3. Serás redirigido al dashboard
+3. **Si tienes 2FA habilitado**, serás redirigido a verificación 2FA
+4. **Si no tienes 2FA**, serás redirigido al dashboard
+
+### Configuración de 2FA
+1. **Activar 2FA:**
+   - Ve a `/dashboard`
+   - Haz clic en "Activar 2FA"
+   - Escanea el código QR con Google Authenticator
+   - Ingresa el código de 6 dígitos
+   
+2. **Verificación 2FA:**
+   - Después del login, si tienes 2FA activado
+   - Ingresa el código de 6 dígitos de tu app
+   - Acceso al dashboard
 
 ### Dashboard
 - Vista protegida solo para usuarios autenticados
+- **Protección adicional con 2FA** si está habilitado
 - Muestra información del usuario logueado
+- Opciones de configuración de seguridad
 - Opción para cerrar sesión
 
 ## 🗂️ Estructura del Proyecto
@@ -169,26 +196,32 @@ SocialHub.xyz/
 ├── app/
 │   ├── Http/Controllers/
 │   │   ├── AuthController.php          # Auth tradicional
-│   │   └── GoogleAuthController.php    # OAuth Google
+│   │   ├── GoogleAuthController.php    # OAuth Google
+│   │   └── Google2FAController.php    # 2FA y seguridad
+│   ├── Http/Middleware/
+│   │   └── Verificar2FA.php           # Middleware de protección 2FA
 │   └── Models/
-│       └── User.php                    # Modelo de usuario
+│       └── User.php                    # Modelo de usuario con campos 2FA
 ├── resources/views/
 │   ├── auth/
 │   │   ├── login.blade.php            # Vista de login
-│   │   └── register.blade.php         # Vista de registro
+│   │   ├── register.blade.php         # Vista de registro
+│   │   ├── setup-2fa.blade.php        # Configuración 2FA
+│   │   └── verify-2fa.blade.php       # Verificación 2FA
 │   ├── layouts/
 │   │   └── app.blade.php              # Layout principal
 │   └── dashboard.blade.php            # Dashboard protegido
 ├── routes/
 │   └── web.php                        # Rutas de la aplicación
 └── database/
-    └── migrations/                    # Migraciones de BD
+    └── migrations/                    # Migraciones de BD incluyendo 2FA
 ```
 
 ## 🔐 Rutas Protegidas
 
-- `/dashboard` - Requiere autenticación
+- `/dashboard` - Requiere autenticación + verificación 2FA (si está habilitado)
 - `/logout` - Solo usuarios logueados
+- `/2fa/*` - Rutas de configuración y verificación 2FA
 
 ## 🚧 Próximas Funcionalidades
 
@@ -197,9 +230,22 @@ SocialHub.xyz/
 - [ ] Sistema de publicaciones programadas
 - [ ] Gestión de horarios de publicación
 - [ ] Cola de publicaciones
-- [ ] Autenticación de dos factores (2FA)
+- [x] **Autenticación de dos factores (2FA)** ✅ **IMPLEMENTADO COMPLETAMENTE**
 - [ ] Panel de administración
 - [ ] API REST para integraciones
+
+## 🔒 **Sistema de Seguridad Implementado**
+
+### **Autenticación de Dos Factores (2FA)**
+- ✅ **Activación opcional** para usuarios
+- ✅ **Verificación obligatoria** en rutas protegidas
+- ✅ **Códigos QR** para configuración fácil
+- ✅ **Middleware de protección** para rutas sensibles
+- ✅ **Integración completa** con login tradicional y Google OAuth
+- ✅ **Base de datos** con campos de seguridad
+- ✅ **Controladores** para gestión de 2FA
+- ✅ **Vistas** para configuración y verificación
+- ✅ **Rutas protegidas** con verificación 2FA
 
 ---
 
