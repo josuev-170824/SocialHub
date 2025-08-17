@@ -33,6 +33,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/2fa/verify', [Google2FAController::class, 'showVerification'])->name('2fa.verify.show');
     Route::post('/2fa/verify', [Google2FAController::class, 'verify'])->name('2fa.verify.post');
     
+    // Ruta para configuración de usuario
+    Route::get('/settings', function () {
+        return view('auth.settings');
+    })->name('user.settings');
+    
     // Rutas que SÍ requieren verificación 2FA
     Route::middleware(\App\Http\Middleware\Verificar2FA::class)->group(function () {
         Route::get('/dashboard', function () {
