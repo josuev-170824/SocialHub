@@ -32,10 +32,44 @@ Route::middleware('auth')->group(function () {
     Route::post('/2fa/disable', [Google2FAController::class, 'disable'])->name('2fa.disable');
     Route::get('/2fa/verify', [Google2FAController::class, 'showVerification'])->name('2fa.verify.show');
     Route::post('/2fa/verify', [Google2FAController::class, 'verify'])->name('2fa.verify.post');
+
+    // Twitter
+    Route::get('/auth/twitter', [App\Http\Controllers\ControladorAutenticacionTwitter::class, 'redirigir'])
+        ->name('auth.twitter');
+    Route::get('/auth/twitter/callback', [App\Http\Controllers\ControladorAutenticacionTwitter::class, 'callback'])
+        ->name('auth.twitter.callback');
+    Route::post('/auth/twitter/desvincular', [App\Http\Controllers\ControladorAutenticacionTwitter::class, 'desvincular'])
+        ->name('auth.twitter.desvincular');
+
+    // LinkedIn
+    Route::get('/auth/linkedin', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'redirigir'])
+    ->name('auth.linkedin');
+    Route::get('/auth/linkedin/callback', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'callback'])
+    ->name('auth.linkedin.callback');
+    Route::post('/auth/linkedin/desvincular', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'desvincular'])
+    ->name('auth.linkedin.desvincular');
     
     // Ruta para configuración de usuario
     Route::get('/settings', function () {
-        return view('auth.settings');
+        // Obtiene la cuenta de Twitter del usuario autenticado
+        $cuentaTwitter = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'twitter')
+            ->where('activa', true)
+            ->first();
+        
+        // Obtiene la cuenta de Facebook del usuario autenticado
+        $cuentaFacebook = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'facebook')
+            ->where('activa', true)
+            ->first();
+        
+        // Obtiene la cuenta de LinkedIn del usuario autenticado
+        $cuentaLinkedIn = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'linkedin')
+            ->where('activa', true)
+            ->first();
+        
+        return view('auth.settings', compact('cuentaTwitter', 'cuentaFacebook', 'cuentaLinkedIn'));
     })->name('user.settings');
     
     // Rutas que SÍ requieren verificación 2FA

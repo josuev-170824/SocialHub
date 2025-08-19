@@ -71,11 +71,23 @@
                     <x-heroicon-o-chat-bubble-left-right class="w-12 h-12 mx-auto text-blue-400" />
                 </div>
                 <h4 class="font-medium mb-2">Twitter</h4>
-                <p class="text-sm text-gray-500 mb-3">No conectado</p>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm flex items-center mx-auto">
-                    <x-heroicon-o-plus class="w-4 h-4 mr-2" />
-                    Conectar Twitter
-                </button>
+                @if(isset($cuentaTwitter) && $cuentaTwitter)
+                    <p class="text-sm text-green-600 mb-1 font-medium">Conectado</p>
+                    <p class="text-xs text-gray-500 mb-3">@{{ $cuentaTwitter->nombre_usuario }}</p>
+                    <form method="POST" action="{{ route('auth.twitter.desvincular') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center mx-auto">
+                            <x-heroicon-o-x-circle class="w-4 h-4 mr-2" />
+                            Desconectar
+                        </button>
+                    </form>
+                @else
+                    <p class="text-sm text-gray-500 mb-3">No conectado</p>
+                    <a href="{{ route('auth.twitter') }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm flex items-center mx-auto">
+                        <x-heroicon-o-plus class="w-4 h-4 mr-2" />
+                        Conectar Twitter
+                    </a>
+                @endif
             </div>
 
             <!-- Facebook -->
@@ -84,11 +96,20 @@
                     <x-heroicon-o-rectangle-stack class="w-12 h-12 mx-auto text-blue-600" />
                 </div>
                 <h4 class="font-medium mb-2">Facebook</h4>
-                <p class="text-sm text-gray-500 mb-3">No conectado</p>
-                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center mx-auto">
-                    <x-heroicon-o-plus class="w-4 h-4 mr-2" />
-                    Conectar Facebook
-                </button>
+                @if(isset($cuentaFacebook) && $cuentaFacebook)
+                    <p class="text-sm text-green-600 mb-1 font-medium">Conectado</p>
+                    <p class="text-xs text-gray-500 mb-3">{{ $cuentaFacebook->nombre_usuario }}</p>
+                    <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center mx-auto" disabled>
+                        <x-heroicon-o-x-circle class="w-4 h-4 mr-2" />
+                        Desconectar
+                    </button>
+                @else
+                    <p class="text-sm text-gray-500 mb-3">No conectado</p>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center mx-auto" disabled>
+                        <x-heroicon-o-plus class="w-4 h-4 mr-2" />
+                        Conectar Facebook
+                    </button>
+                @endif
             </div>
 
             <!-- LinkedIn -->
@@ -97,12 +118,25 @@
                     <x-heroicon-o-briefcase class="w-12 h-12 mx-auto text-blue-700" />
                 </div>
                 <h4 class="font-medium mb-2">LinkedIn</h4>
-                <p class="text-sm text-gray-500 mb-3">No conectado</p>
-                <button class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 text-sm flex items-center mx-auto">
-                    <x-heroicon-o-plus class="w-4 h-4 mr-2" />
-                    Conectar LinkedIn
-                </button>
+                @if(isset($cuentaLinkedIn) && $cuentaLinkedIn)
+                    <p class="text-sm text-green-600 mb-1 font-medium">Conectado</p>
+                    <p class="text-xs text-gray-500 mb-3">{{ $cuentaLinkedIn->nombre_usuario }}</p>
+                    <form method="POST" action="{{ route('auth.linkedin.desvincular') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center mx-auto">
+                            <x-heroicon-o-x-circle class="w-4 h-4 mr-2" />
+                            Desconectar
+                        </button>
+                    </form>
+                @else
+                    <p class="text-sm text-gray-500 mb-3">No conectado</p>
+                    <a href="{{ route('auth.linkedin') }}" class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 text-sm flex items-center mx-auto">
+                        <x-heroicon-o-plus class="w-4 h-4 mr-2" />
+                        Conectar LinkedIn
+                    </a>
+                @endif
             </div>
+
         </div>
     </div>
 

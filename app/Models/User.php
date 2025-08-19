@@ -50,4 +50,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relación con las cuentas de redes sociales (Twitter, Facebook, LinkedIn)
+    public function cuentasRedesSociales()
+    {
+        return $this->hasMany(CuentaRedSocial::class);
+    }
 }
