@@ -47,20 +47,27 @@ return [
     'client_id' => env('TWITTER_CLIENT_ID'),
     'client_secret' => env('TWITTER_CLIENT_SECRET'),
     'redirect' => env('TWITTER_REDIRECT_URI'),
-],
+    ],
 
-    // Configuración de Facebook para autenticación
-'facebook' => [
-    'client_id' => env('FACEBOOK_CLIENT_ID'),
-    'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-    'redirect' => env('FACEBOOK_REDIRECT_URI'),
-],
+        // Configuración de Facebook para autenticación
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_REDIRECT_URI'),
+    ],
 
-    // Configuración de LinkedIn para autenticación
-'linkedin' => [
-    'client_id' => env('LINKEDIN_CLIENT_ID'),
-    'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-    'redirect' => env('LINKEDIN_REDIRECT_URI'),
-],
+        // Configuración de LinkedIn para autenticación
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_REDIRECT_URI'),
+    ],
+
+    'mastodon' => [
+        'client_id' => env('MASTODON_CLIENT_ID'),
+        'client_secret' => env('MASTODON_CLIENT_SECRET'),
+        'redirect' => env('MASTODON_REDIRECT_URI'),
+        'instance_url' => env('MASTODON_INSTANCE_URL'),
+    ],
 
 ];

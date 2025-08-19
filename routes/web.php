@@ -42,13 +42,35 @@ Route::middleware('auth')->group(function () {
         ->name('auth.twitter.desvincular');
 
     // LinkedIn
+    // Redirigir
     Route::get('/auth/linkedin', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'redirigir'])
-    ->name('auth.linkedin');
+        ->name('auth.linkedin');
+    // Callback
     Route::get('/auth/linkedin/callback', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'callback'])
-    ->name('auth.linkedin.callback');
+        ->name('auth.linkedin.callback');
+    // Desvincular
     Route::post('/auth/linkedin/desvincular', [App\Http\Controllers\ControladorAutenticacionLinkedIn::class, 'desvincular'])
-    ->name('auth.linkedin.desvincular');
+        ->name('auth.linkedin.desvincular');
+
+    // Facebook
+    Route::get('/auth/facebook', [App\Http\Controllers\ControladorAutenticacionFacebook::class, 'redirigir'])
+        ->name('auth.facebook');
+    Route::get('/auth/facebook/callback', [App\Http\Controllers\ControladorAutenticacionFacebook::class, 'callback'])
+        ->name('auth.facebook.callback');
+    Route::post('/auth/facebook/desvincular', [App\Http\Controllers\ControladorAutenticacionFacebook::class, 'desvincular'])
+        ->name('auth.facebook.desvincular');
     
+    // Mastodon
+    // Redirigir
+    Route::get('/auth/mastodon', [App\Http\Controllers\ControladorAutenticacionMastodon::class, 'redirigir'])
+        ->name('auth.mastodon');
+    // Callback
+    Route::get('/auth/mastodon/callback', [App\Http\Controllers\ControladorAutenticacionMastodon::class, 'callback'])
+        ->name('auth.mastodon.callback');
+    // Desvincular
+    Route::post('/auth/mastodon/desvincular', [App\Http\Controllers\ControladorAutenticacionMastodon::class, 'desvincular'])
+        ->name('auth.mastodon.desvincular');
+
     // Ruta para configuración de usuario
     Route::get('/settings', function () {
         // Obtiene la cuenta de Twitter del usuario autenticado
@@ -68,8 +90,14 @@ Route::middleware('auth')->group(function () {
             ->where('plataforma', 'linkedin')
             ->where('activa', true)
             ->first();
+
+        // Obtiene la cuenta de Mastodon del usuario autenticado
+        $cuentaMastodon = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'mastodon')
+            ->where('activa', true)
+            ->first();
         
-        return view('auth.settings', compact('cuentaTwitter', 'cuentaFacebook', 'cuentaLinkedIn'));
+        return view('auth.settings', compact('cuentaTwitter', 'cuentaFacebook', 'cuentaLinkedIn', 'cuentaMastodon'));
     })->name('user.settings');
     
     // Rutas que SÍ requieren verificación 2FA

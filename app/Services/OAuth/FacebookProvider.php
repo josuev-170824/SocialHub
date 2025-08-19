@@ -7,51 +7,52 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 
-class LinkedInProvider extends AbstractProvider
+// Clase para autenticar con Facebook
+class FacebookProvider extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
     protected $state;
 
-    // URL base para autorizar a los usuarios para LinkedIn
+    // URL base para autorizar a los usuarios para Facebook
     public function getBaseAuthorizationUrl(): string
     {
-        return 'https://www.linkedin.com/oauth/v2/authorization';
+        return 'https://www.facebook.com/v18.0/dialog/oauth';
     }
 
-    // URL base para obtener el token de acceso para LinkedIn
+    // URL base para obtener el token de acceso para Facebook
     public function getBaseAccessTokenUrl(array $params): string
     {
-        return 'https://www.linkedin.com/oauth/v2/accessToken';
+        return 'https://graph.facebook.com/v18.0/oauth/access_token';
     }
 
-    // URL para obtener los detalles del usuario para LinkedIn
+    // URL para obtener los detalles del usuario para Facebook
     public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
-        return 'https://api.linkedin.com/v2/userinfo';
+        return 'https://graph.facebook.com/v18.0/me?fields=id,name,email,picture';
     }
 
-    // Alcances por defecto para LinkedIn (nuevos permisos)
+    // Alcances por defecto para Facebook (leer perfil y correo electrónico)
     protected function getDefaultScopes(): array
     {
-        return ['openid', 'profile', 'email'];
+        return ['email', 'public_profile'];
     }
 
-    // Verifica la respuesta de la API para LinkedIn
+    // Verifica la respuesta de la API para Facebook
     protected function checkResponse(ResponseInterface $response, $data): void
     {
-        if ($response->getStatusCode() >= 400) {
-            throw new \Exception($data['message'] ?? 'Error en LinkedIn API');
+        if (isset($data['error'])) {
+            throw new \Exception($data['error']['message'] ?? 'Error en Facebook API');
         }
     }
 
-    // Crea el propietario del recurso para LinkedIn
+    // Crea el propietario del recurso para Facebook
     protected function createResourceOwner(array $response, AccessToken $token): array
     {
         return $response;
     }
 
-    // Obtiene el estado de la sesión para LinkedIn
+    // Obtiene el estado de la sesión para Facebook
     public function getState(): string
     {
         if (!isset($this->state)) {
@@ -60,14 +61,14 @@ class LinkedInProvider extends AbstractProvider
         return $this->state;
     }
 
-    // Construye la URL de autorización para LinkedIn
+    // Construye la URL de autorización para Facebook
     public function buildAuthorizationUrl(): string
     {
         $params = [
             'response_type' => 'code',
             'client_id' => $this->clientId,
             'redirect_uri' => $this->redirectUri,
-            'scope' => implode(' ', $this->getDefaultScopes()),
+            'scope' => implode(',', $this->getDefaultScopes()),
             'state' => $this->getState()
         ];
         

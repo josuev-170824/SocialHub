@@ -137,6 +137,31 @@
                 @endif
             </div>
 
+            <!-- Mastodon -->
+            <div class="border border-gray-200 rounded-lg p-4 text-center">
+                <div class="text-purple-600 text-3xl mb-2">
+                    <x-heroicon-o-chat-bubble-left-right class="w-12 h-12 mx-auto text-purple-600" />
+                </div>
+                <h4 class="font-medium mb-2">Mastodon</h4>
+                @if(isset($cuentaMastodon) && $cuentaMastodon)
+                    <p class="text-sm text-green-600 mb-1 font-medium">Conectado</p>
+                    <p class="text-xs text-gray-500 mb-3">{{ $cuentaMastodon->nombre_usuario }}</p>
+                    <form method="POST" action="{{ route('auth.mastodon.desvincular') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center mx-auto">
+                            <x-heroicon-o-x-circle class="w-4 h-4 mr-2" />
+                            Desconectar
+                        </button>
+                    </form>
+                @else
+                    <p class="text-sm text-gray-500 mb-3">No conectado</p>
+                    <a href="{{ route('auth.mastodon') }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center mx-auto">
+                        <x-heroicon-o-plus class="w-4 h-4 mr-2" />
+                        Conectar Mastodon
+                    </a>
+                @endif
+            </div>
+
         </div>
     </div>
 
