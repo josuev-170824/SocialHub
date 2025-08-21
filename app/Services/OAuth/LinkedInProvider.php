@@ -34,7 +34,7 @@ class LinkedInProvider extends AbstractProvider
     // Alcances por defecto para LinkedIn (nuevos permisos)
     protected function getDefaultScopes(): array
     {
-        return ['openid', 'profile', 'email'];
+        return ['openid', 'profile', 'email', 'w_member_social'];
     }
 
     // Verifica la respuesta de la API para LinkedIn

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Google2FAController;
+use App\Http\Controllers\PublicationController;
 
 // Rutas de autenticación
 Route::get('/', function () {
@@ -102,10 +103,18 @@ Route::middleware('auth')->group(function () {
     
     // Rutas que SÍ requieren verificación 2FA
     Route::middleware(\App\Http\Middleware\Verificar2FA::class)->group(function () {
+        // Vista de dashboard
         Route::get('/dashboard', function () {
             return view('dashboard');
         })->name('dashboard');
         
+        // Ruta para crear una publicación de Mastodon
+        // Vista para crear una publicación
+        Route::get('/publications/create', [PublicationController::class, 'create'])->name('publications.create');
+        // Guardar una publicación
+        Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
+        
+        // Ruta para cerrar sesión
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });
 });

@@ -74,9 +74,9 @@
                 Crear Nueva Publicación
             </h3>
             <p class="text-gray-600 mb-4">Programa o publica inmediatamente en tus redes sociales conectadas.</p>
-            <button class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+            <a href="{{ route('publications.create') }}" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
                 Crear Publicación
-            </button>
+            </a>
         </div>
 
         <!-- Configuración Rápida -->
