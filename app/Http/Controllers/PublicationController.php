@@ -7,6 +7,7 @@ use App\Services\SocialMedia\MastodonService;
 use App\Services\SocialMedia\LinkedInService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Publication;
 
 class PublicationController extends Controller
 {
@@ -94,10 +95,23 @@ class PublicationController extends Controller
                     $resultados[$red] = ['error' => $e->getMessage()];
                 }
             }
-    
+
             \Log::info('Resultados finales:', $resultados);
-    
-            // Mostrar resultados detallados
+
+            // almacena la publicación en la base de datos para que se pueda ver en el dashboard
+            $publicacion = Publication::create([
+                'user_id' => Auth::id(),
+                'contenido' => $contenido,
+                'redes' => $redesSeleccionadas,
+                'tipo_publicacion' => $tipoPublicacion,
+                'fecha_hora' => $fechaHora,
+                'estado' => 'completada',
+                'resultados' => $resultados
+            ]);
+
+            \Log::info('Publicación guardada en BD con ID:', ['id' => $publicacion->id]);
+
+            // muestra los resultados para el log
             $mensaje = "Publicación procesada:\n";
             foreach ($resultados as $red => $resultado) {
                 if (isset($resultado['error'])) {
@@ -106,9 +120,9 @@ class PublicationController extends Controller
                     $mensaje .= "✅ $red: " . $resultado['message'] . "\n";
                 }
             }
-    
+
             \Log::info('Redirigiendo con mensaje:', ['mensaje' => $mensaje]);
-    
+
             return redirect()->route('dashboard')->with('success', $mensaje);
     
         } catch (\Exception $e) {
@@ -120,4 +134,15 @@ class PublicationController extends Controller
             return redirect()->back()->with('error', 'Error al procesar la publicación: ' . $e->getMessage());
         }
     }
+
+    // Mostrar las publicaciones
+    public function index()
+    {
+        $publicaciones = Publication::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        
+        return view('publications.index', compact('publicaciones'));
+    }
+
 }

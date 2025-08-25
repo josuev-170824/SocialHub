@@ -56,4 +56,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(CuentaRedSocial::class);
     }
+
+    // Relación con las publicaciones del usuario 
+    public function publications()
+    {
+        return $this->hasMany(Publication::class);
+    }
 }

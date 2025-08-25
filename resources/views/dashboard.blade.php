@@ -18,7 +18,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Programadas</p>
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $publicacionesProgramadas }}</p>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">En Cola</p>
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $publicacionesEnCola }}</p>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Redes</p>
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $redesConectadas }}</p>
                 </div>
             </div>
         </div>
@@ -98,11 +98,51 @@
             <x-heroicon-o-clock class="w-5 h-5 mr-2 text-gray-600" />
             Actividad Reciente
         </h3>
-        <div class="text-center py-8 text-gray-500">
-            <x-heroicon-o-document-text class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p class="text-lg">No hay actividad reciente</p>
-            <p class="text-sm">Cuando comiences a publicar, verás tu historial aquí.</p>
-        </div>
+        <!-- Muestra la actividad reciente -->
+        @if($actividadReciente->count() > 0)
+            <div class="space-y-4">
+
+                @foreach($actividadReciente as $publicacion)
+                <!-- Publicación a mostrar -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        
+                        <!-- Icono de la publicación -->
+                        <div class="p-2 bg-indigo-100 rounded-lg">
+                            <x-heroicon-o-document-text class="w-5 h-5 text-indigo-600" />
+                        </div>
+
+                        <!-- Contenido de la publicación -->
+                        <div>
+                            <p class="font-medium text-gray-900">{{ Str::limit($publicacion->contenido, 50) }}</p>
+                            <p class="text-sm text-gray-500">
+                                {{ $publicacion->created_at->diffForHumans() }} • 
+                                {{ ucfirst($publicacion->tipo_publicacion) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de la publicación -->
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {{ $publicacion->estado === 'completada' ? 'bg-green-100 text-green-800' : 
+                               ($publicacion->estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                            {{ ucfirst($publicacion->estado) }}
+                        </span>
+                    </div>
+                </div>
+                @endforeach
+
+            </div>
+        @else
+            <!-- Muestra un mensaje si no hay actividad reciente -->
+            <div class="text-center py-8 text-gray-500">
+                <x-heroicon-o-document-text class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p class="text-lg">No hay actividad reciente</p>
+                <p class="text-sm">Cuando comiences a publicar, verás tu historial aquí.</p>
+            </div>
+
+        @endif
     </div>
 </div>
 @endsection
