@@ -195,17 +195,17 @@ class PublicationController extends Controller
     // Eliminar una publicación
     public function destroy(Publication $publication)
     {
-        // Verificar que el usuario sea dueño de la publicación
+        // vldar que el usuario sea dueño de la publicación
         if ($publication->user_id !== Auth::id()) {
             abort(403, 'No tienes permiso para eliminar esta publicación');
         }
 
-        // Solo permitir eliminar publicaciones programadas pendientes
+        // permitir eliminar publicaciones programadas pendientes
         if ($publication->tipo_publicacion !== 'programada' || $publication->estado !== 'pendiente') {
             abort(403, 'Solo se pueden eliminar publicaciones programadas pendientes');
         }
 
-        $publicacion->delete();
+        $publication->delete();
 
         return redirect()->route('schedules.index')->with('success', 'Publicación eliminada correctamente');
     }
@@ -220,7 +220,6 @@ class PublicationController extends Controller
         return view('publications.index', compact('publicaciones'));
     }
 
-    // Vista de horarios/calendario de publicaciones programadas
     public function schedules()
     {
         $publicaciones = Publication::where('user_id', Auth::id())
