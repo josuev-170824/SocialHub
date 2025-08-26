@@ -31,12 +31,10 @@ class PublicationController extends Controller
     // Guardar una publicación
     public function store(Request $request)
     {
-        // Debug: Ver si llega aquí
         \Log::info('PublicationController@store llamado');
         \Log::info('Datos recibidos:', $request->all());
     
         try {
-            // Valida los datos del formulario
             \Log::info('Iniciando validación...');
             
             $request->validate([
@@ -44,7 +42,8 @@ class PublicationController extends Controller
                 'redes' => 'required|array|min:1',
                 'redes.*' => 'in:linkedin,mastodon',
                 'tipo_publicacion' => 'required|in:inmediata,programada',
-                'fecha_hora' => 'nullable|date|after:now',
+                'fecha' => 'nullable|date|after_or_equal:today',
+                'hora' => 'nullable|date_format:H:i',
             ]);
     
             \Log::info('Validación exitosa, procesando publicación...');
@@ -52,19 +51,29 @@ class PublicationController extends Controller
             $redesSeleccionadas = $request->redes;
             $contenido = $request->contenido;
             $tipoPublicacion = $request->tipo_publicacion;
-            $fechaHora = $request->fecha_hora;
-    
-            // Validación manual para fecha programada
-            if ($tipoPublicacion === 'programada' && !$fechaHora) {
-                throw new \Exception('La fecha y hora son requeridas para publicaciones programadas');
+            $fecha = $request->fecha;
+            $hora = $request->hora;
+            
+            // Construir fecha_hora para publicaciones programadas
+            $fechaHora = null;
+            if ($tipoPublicacion === 'programada') {
+                if (!$fecha || !$hora) {
+                    throw new \Exception('La fecha y hora son requeridas para publicaciones programadas');
+                }
+                
+                $fechaHora = $fecha . ' ' . $hora . ':00';
+                
+                // Validar que la fecha sea en el futuro
+                if (strtotime($fechaHora) <= time()) {
+                    throw new \Exception('La fecha y hora deben ser al menos 1 minuto en el futuro');
+                }
             }
     
-            // Debug: Log de lo que se está procesando
             \Log::info('Publicación solicitada:', [
                 'contenido' => $contenido,
                 'redes' => $redesSeleccionadas,
                 'tipo' => $tipoPublicacion,
-                'fecha' => $fechaHora
+                'fecha_hora' => $fechaHora
             ]);
     
             $resultados = [];
@@ -98,20 +107,18 @@ class PublicationController extends Controller
 
             \Log::info('Resultados finales:', $resultados);
 
-            // almacena la publicación en la base de datos para que se pueda ver en el dashboard
             $publicacion = Publication::create([
                 'user_id' => Auth::id(),
                 'contenido' => $contenido,
                 'redes' => $redesSeleccionadas,
                 'tipo_publicacion' => $tipoPublicacion,
                 'fecha_hora' => $fechaHora,
-                'estado' => 'completada',
+                'estado' => $tipoPublicacion === 'inmediata' ? 'completada' : 'pendiente',
                 'resultados' => $resultados
             ]);
 
             \Log::info('Publicación guardada en BD con ID:', ['id' => $publicacion->id]);
 
-            // muestra los resultados para el log
             $mensaje = "Publicación procesada:\n";
             foreach ($resultados as $red => $resultado) {
                 if (isset($resultado['error'])) {
@@ -135,6 +142,74 @@ class PublicationController extends Controller
         }
     }
 
+    // Vista para editar una publicación
+    public function edit(Publication $publication)
+    {
+        // Verificar que el usuario sea dueño de la publicación
+        if ($publication->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para editar esta publicación');
+        }
+
+        // Solo permitir editar publicaciones programadas pendientes
+        if ($publication->tipo_publicacion !== 'programada' || $publication->estado !== 'pendiente') {
+            abort(403, 'Solo se pueden editar publicaciones programadas pendientes');
+        }
+
+        return view('publications.edit', compact('publication'));
+    }
+
+    // Actualizar una publicación
+    public function update(Request $request, Publication $publication)
+    {
+        if ($publication->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para actualizar esta publicación');
+        }
+
+        if ($publication->tipo_publicacion !== 'programada' || $publication->estado !== 'pendiente') {
+            abort(403, 'Solo se pueden editar publicaciones programadas pendientes');
+        }
+
+        $request->validate([
+            'contenido' => 'required|string|max:500',
+            'redes' => 'required|array|min:1',
+            'redes.*' => 'in:linkedin,mastodon',
+            'fecha' => 'required|date|after_or_equal:today',
+            'hora' => 'required|date_format:H:i',
+        ]);
+
+        $fechaHora = $request->fecha . ' ' . $request->hora . ':00';
+        
+        if (strtotime($fechaHora) <= time()) {
+            return redirect()->back()->with('error', 'La fecha y hora deben ser al menos 1 minuto en el futuro');
+        }
+
+        $publication->update([
+            'contenido' => $request->contenido,
+            'redes' => $request->redes,
+            'fecha_hora' => $fechaHora,
+        ]);
+
+        return redirect()->route('schedules.index')->with('success', 'Publicación actualizada correctamente');
+    }
+
+    // Eliminar una publicación
+    public function destroy(Publication $publication)
+    {
+        // Verificar que el usuario sea dueño de la publicación
+        if ($publication->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para eliminar esta publicación');
+        }
+
+        // Solo permitir eliminar publicaciones programadas pendientes
+        if ($publication->tipo_publicacion !== 'programada' || $publication->estado !== 'pendiente') {
+            abort(403, 'Solo se pueden eliminar publicaciones programadas pendientes');
+        }
+
+        $publicacion->delete();
+
+        return redirect()->route('schedules.index')->with('success', 'Publicación eliminada correctamente');
+    }
+
     // Mostrar las publicaciones
     public function index()
     {
@@ -145,4 +220,14 @@ class PublicationController extends Controller
         return view('publications.index', compact('publicaciones'));
     }
 
+    // Vista de horarios/calendario de publicaciones programadas
+    public function schedules()
+    {
+        $publicaciones = Publication::where('user_id', Auth::id())
+            ->where('tipo_publicacion', 'programada')
+            ->orderBy('fecha_hora', 'asc')
+            ->get();
+        
+        return view('schedules.index', compact('publicaciones'));
+    }
 }

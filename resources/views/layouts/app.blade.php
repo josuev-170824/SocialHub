@@ -40,7 +40,7 @@
                             Publicaciones
                         </a>
                         
-                        <a href="#" 
+                        <a href="{{ route('schedules.index') }}" 
                         class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
                             <x-heroicon-o-clock class="w-4 h-4 mr-2" />
                             Horarios
@@ -87,7 +87,7 @@
                         <a href="{{ route('publications.index') }}" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium {{ request()->routeIs('publications.*') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800' }}">
                             Publicaciones
                         </a>
-                        <a href="#" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">
+                        <a href="{{ route('schedules.index') }}" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">
                             Horarios
                         </a>
                     </div>

@@ -116,6 +116,16 @@ Route::middleware('auth')->group(function () {
         // Guardar una publicación
         Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
         
+        // Rutas para las programaciones de publicaciones
+        // Vista de programaciones
+        Route::get('/publications/{publication}/edit', [PublicationController::class, 'edit'])->name('publications.edit');
+        Route::put('/publications/{publication}', [PublicationController::class, 'update'])->name('publications.update');
+        Route::delete('/publications/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
+
+        // Vista de horarios/calendario de publicaciones programadas
+        Route::get('/schedules', [PublicationController::class, 'schedules'])->name('schedules.index');
+        
+
         // Ruta para cerrar sesión
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });

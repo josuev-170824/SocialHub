@@ -14,14 +14,12 @@
         
         <!-- Selección de Redes Sociales -->
         <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
                 <x-heroicon-o-link class="w-5 h-5 mr-2 text-blue-600" />
                 Seleccionar Redes Sociales
             </h3>
             
-            <!-- Redes Sociales -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- LinkedIn -->
                 @if(isset($cuentaLinkedIn) && $cuentaLinkedIn)
                 <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
                     <input type="checkbox" name="redes[]" value="linkedin" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
@@ -35,7 +33,6 @@
                 </label>
                 @endif
 
-                <!-- Mastodon -->
                 @if(isset($cuentaMastodon) && $cuentaMastodon)
                 <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
                     <input type="checkbox" name="redes[]" value="mastodon" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
@@ -50,7 +47,7 @@
                 @endif
             </div>
         </div>
-        
+
         <!-- Contenido del Post -->
         <div class="mb-6">
             <label for="contenido" class="block text-sm font-medium text-gray-700 mb-2">
@@ -84,16 +81,31 @@
 
         <!-- Fecha y Hora Programada (oculto por defecto) -->
         <div id="fecha_programada" class="mb-6 hidden">
-            <label for="fecha_hora" class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
                 Fecha y Hora de Publicación
             </label>
-            <input 
-                type="datetime-local" 
-                id="fecha_hora" 
-                name="fecha_hora" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                min="{{ now()->format('Y-m-d\TH:i') }}"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="fecha" class="block text-sm text-gray-600 mb-1">Fecha</label>
+                    <input 
+                        type="date" 
+                        id="fecha" 
+                        name="fecha" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        min="{{ date('Y-m-d') }}"
+                    >
+                </div>
+                <div>
+                    <label for="hora" class="block text-sm text-gray-600 mb-1">Hora</label>
+                    <input 
+                        type="time" 
+                        id="hora" 
+                        name="hora" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Selecciona fecha y hora para la publicación programada</p>
         </div>
 
         <!-- Botones de Acción -->
@@ -107,7 +119,8 @@
         </div>
     </form>
     @else
-    <div class="text-center py-8 text-gray-500">
+    <!-- Mensaje cuando no hay redes conectadas -->
+    <div class="bg-white rounded-xl shadow p-6 text-center py-8 text-gray-500">
         <x-heroicon-o-link class="w-12 h-12 mx-auto mb-4 text-gray-300" />
         <p class="text-lg">No tienes redes sociales conectadas</p>
         <p class="text-sm mb-4">Conecta al menos una red social para poder publicar.</p>
@@ -124,29 +137,55 @@ document.addEventListener('DOMContentLoaded', function() {
     const contenido = document.getElementById('contenido');
     const tipoPublicacion = document.getElementById('tipo_publicacion');
     const fechaProgramada = document.getElementById('fecha_programada');
+    const fecha = document.getElementById('fecha');
+    const hora = document.getElementById('hora');
 
     // Contador de caracteres
-    if (contenido) {
-        contenido.addEventListener('input', function() {
-            const longitud = this.value.length;
-            contador.textContent = `${longitud}/500`;
-            
-            if (longitud > 450) {
-                contador.classList.add('text-red-500');
-            } else {
-                contador.classList.remove('text-red-500');
-            }
-        });
-    }
+    contenido.addEventListener('input', function() {
+        const longitud = this.value.length;
+        contador.textContent = `${longitud}/500`;
+        
+        if (longitud > 450) {
+            contador.classList.add('text-red-500');
+        } else {
+            contador.classList.remove('text-red-500');
+        }
+    });
 
     // Mostrar/ocultar fecha programada
-    if (tipoPublicacion) {
-        tipoPublicacion.addEventListener('change', function() {
-            if (this.value === 'programada') {
-                fechaProgramada.classList.remove('hidden');
-            } else {
-                fechaProgramada.classList.add('hidden');
-            }
+    tipoPublicacion.addEventListener('change', function() {
+        if (this.value === 'programada') {
+            fechaProgramada.classList.remove('hidden');
+            // Hacer obligatorios los campos de fecha y hora
+            fecha.required = true;
+            hora.required = true;
+        } else {
+            fechaProgramada.classList.add('hidden');
+            // Quitar obligatoriedad
+            fecha.required = false;
+            hora.required = false;
+            // Limpiar valores
+            fecha.value = '';
+            hora.value = '';
+        }
+    });
+
+    // Validación de fecha y hora
+    if (fecha && hora) {
+        [fecha, hora].forEach(input => {
+            input.addEventListener('change', function() {
+                if (fecha.value && hora.value) {
+                    const fechaSeleccionada = new Date(fecha.value + ' ' + hora.value);
+                    const ahora = new Date();
+                    const unMinutoDespues = new Date(ahora.getTime() + 60000);
+                    
+                    if (fechaSeleccionada <= ahora) {
+                        alert('La fecha y hora deben ser al menos 1 minuto en el futuro');
+                        fecha.value = '';
+                        hora.value = '';
+                    }
+                }
+            });
         });
     }
 });

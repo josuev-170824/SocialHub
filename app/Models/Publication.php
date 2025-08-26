@@ -44,7 +44,28 @@ class Publication extends Model
     // Scope/filtro para las publicaciones pendientes
     public function scopePendientes($query)
     {
-        return $query->where('estado', 'pendiente');
+        return $query->where('estado', 'pendiente')
+        ->where(function($q) {
+            $q->where('tipo_publicacion', 'inmediata')
+              ->orWhere(function($q2) {
+                  $q2->where('tipo_publicacion', 'programada')
+                      ->where('fecha_hora', '>', now());
+              });
+        });
+    }
+
+    // Scope/filtro para las publicaciones ejecutadas
+    public function scopeEjecutadas($query)
+    {
+        return $query->where('estado', 'completada');
+    }
+
+    // Scope/filtro para las publicaciones en proceso
+    public function scopePorEjecutar($query)
+    {
+        return $query->where('tipo_publicacion', 'programada')
+                    ->where('fecha_hora', '>', now())
+                    ->where('estado', 'pendiente');
     }
 
     // Scope/filtro para las publicaciones recientes
@@ -52,4 +73,27 @@ class Publication extends Model
     {
         return $query->orderBy('created_at', 'desc')->limit($limit);
     }
+
+    // Método para verificar si se puede editar la publicación
+    public function esEditable(): bool
+    {
+        // si la publicación es inmediata, no se puede editar
+        if ($this->tipo_publicacion === 'inmediata') {
+            return false;
+        }
+        
+        // si la publicación es programada, se puede editar si la fecha y hora son mayores a la fecha y hora actual y el estado es pendiente
+        if ($this->tipo_publicacion === 'programada') {
+            return $this->fecha_hora > now() && $this->estado === 'pendiente';
+        }
+        
+        return false;
+    }
+
+    // Método para verificar si se puede eliminar la publicación
+    public function esEliminable(): bool
+    {
+        return $this->tipo_publicacion === 'inmediata' || ($this->tipo_publicacion === 'programada' && $this->fecha_hora > now() && $this->estado === 'pendiente');
+    }
+
 }
