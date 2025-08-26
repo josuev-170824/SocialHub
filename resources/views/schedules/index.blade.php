@@ -154,8 +154,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="text-xs opacity-75">${estadoTexto}</div>
                         ${!esPasada ? `
                             <div class="flex space-x-1 mt-1">
-                                <button onclick="editarPublicacion(${pub.id})" class="text-xs text-indigo-600 hover:text-indigo-900">Editar</button>
-                                <button onclick="eliminarPublicacion(${pub.id})" class="text-xs text-red-600 hover:text-red-900">Eliminar</button>
+                                <a href="/publications/${pub.id}/edit" class="text-xs text-indigo-600 hover:text-indigo-900">Editar</a>
+                                <form method="POST" action="/publications/${pub.id}" class="inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="text-xs text-red-600 hover:text-red-900" onclick="return confirm('¿Estás seguro?')">
+                                        Eliminar
+                                    </button>
+                                </form>
                             </div>
                         ` : ''}
                     </div>
@@ -194,22 +200,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-function editarPublicacion(id) {
-    window.location.href = `/publications/${id}/edit`;
-}
-
-function eliminarPublicacion(id) {
-    if (confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
-        fetch(`/publications/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        }).then(() => {
-            window.location.reload();
-        });
-    }
-}
 </script>
 @endsection
