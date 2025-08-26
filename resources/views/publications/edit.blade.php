@@ -18,14 +18,8 @@
                 </span>
             </div>
             <div>
-                <span class="font-medium text-gray-700">Redes:</span>
-                <span class="ml-2">
-                    @foreach($publication->redes as $red)
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1">
-                            {{ ucfirst($red) }}
-                        </span>
-                    @endforeach
-                </span>
+                <span class="font-medium text-gray-700">Fecha Programada:</span>
+                <span class="ml-2 text-gray-600">{{ $publication->fecha_hora->format('d/m/Y H:i') }}</span>
             </div>
         </div>
     </div>
@@ -34,6 +28,53 @@
     <form method="POST" action="{{ route('publications.update', $publication) }}" class="bg-white rounded-xl shadow p-6">
         @csrf
         @method('PUT')
+        
+        <!-- Redes Sociales -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Seleccionar Redes Sociales
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @if(isset($cuentaLinkedIn) && $cuentaLinkedIn)
+                <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" name="redes[]" value="linkedin" 
+                           {{ in_array('linkedin', $publication->redes) ? 'checked' : '' }}
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <div class="ml-3">
+                        <div class="flex items-center">
+                            <x-heroicon-o-briefcase class="w-5 h-5 text-blue-700 mr-2" />
+                            <span class="font-medium">LinkedIn</span>
+                        </div>
+                        <p class="text-sm text-gray-500">{{ $cuentaLinkedIn->nombre_usuario }}</p>
+                    </div>
+                </label>
+                @endif
+
+                @if(isset($cuentaMastodon) && $cuentaMastodon)
+                <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" name="redes[]" value="mastodon" 
+                           {{ in_array('mastodon', $publication->redes) ? 'checked' : '' }}
+                           class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <div class="ml-3">
+                        <div class="flex items-center">
+                            <x-heroicon-o-chat-bubble-left-right class="w-5 h-5 text-purple-600 mr-2" />
+                            <span class="font-medium">Mastodon</span>
+                        </div>
+                        <p class="text-sm text-gray-500">{{ $cuentaMastodon->nombre_usuario }}</p>
+                    </div>
+                </label>
+                @endif
+            </div>
+            
+            @if(!isset($cuentaLinkedIn) && !isset($cuentaMastodon))
+            <div class="text-center py-4 text-gray-500">
+                <p class="text-sm">No tienes redes sociales conectadas</p>
+                <a href="{{ route('user.settings') }}" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                    Conectar Redes Sociales
+                </a>
+            </div>
+            @endif
+        </div>
         
         <!-- Contenido del Post -->
         <div class="mb-6">

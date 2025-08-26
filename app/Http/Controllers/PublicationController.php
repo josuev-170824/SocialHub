@@ -145,17 +145,26 @@ class PublicationController extends Controller
     // Vista para editar una publicación
     public function edit(Publication $publication)
     {
-        // Verificar que el usuario sea dueño de la publicación
         if ($publication->user_id !== Auth::id()) {
             abort(403, 'No tienes permiso para editar esta publicación');
         }
 
-        // Solo permitir editar publicaciones programadas pendientes
         if ($publication->tipo_publicacion !== 'programada' || $publication->estado !== 'pendiente') {
             abort(403, 'Solo se pueden editar publicaciones programadas pendientes');
         }
 
-        return view('publications.edit', compact('publication'));
+        // Obtener las cuentas conectadas para mostrar en el formulario
+        $cuentaLinkedIn = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'linkedin')
+            ->where('activa', true)
+            ->first();
+        
+        $cuentaMastodon = Auth::user()->cuentasRedesSociales()
+            ->where('plataforma', 'mastodon')
+            ->where('activa', true)
+            ->first();
+
+        return view('publications.edit', compact('publication', 'cuentaLinkedIn', 'cuentaMastodon'));
     }
 
     // Actualizar una publicación
